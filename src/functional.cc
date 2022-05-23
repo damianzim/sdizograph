@@ -34,4 +34,4 @@ bool Functional(const util::Args& args) {
   return true;
 }
 
-} // namespace sdizo::test
+}  // namespace sdizo::test

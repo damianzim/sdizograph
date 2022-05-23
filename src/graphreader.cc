@@ -16,9 +16,8 @@
 
 #include "graphreader.hpp"
 
-#include <cinttypes>
-#include <cstdio>
-
+#include <inttypes.h>
+#include <stdio.h>
 
 namespace sdizo {
 
@@ -36,7 +35,8 @@ bool GraphReader::Open(const char* path, size_t& v, size_t& e, size_t* vb, size_
   }
 
   int64_t size, e_read, vb_read, ve_read;
-  if (std::fscanf(fp_, "%" PRId64 " %" PRId64 " %" PRId64 " %" PRId64 " \n", &size, &e_read, &vb_read, &ve_read) != 4 || size < 1) {
+  if (std::fscanf(fp_, "%" PRId64 " %" PRId64 " %" PRId64 " %" PRId64 " \n", &size, &e_read, &vb_read, &ve_read) != 4 ||
+      size < 1) {
     std::fclose(fp_);
     fp_ = nullptr;
     return false;
@@ -62,4 +62,4 @@ bool GraphReader::ReadEdge(size_t& vb, size_t& ve, int32_t* weight) {
   return true;
 }
 
-} // namespace sdizo
+}  // namespace sdizo

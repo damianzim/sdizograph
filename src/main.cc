@@ -25,7 +25,8 @@ using namespace sdizo;
 namespace {
 
 [[noreturn]] void ExitHelp(const char* prog, const bool exit_success = true) {
-  std::fprintf(stderr, "\
+  std::fprintf(stderr,
+               "\
 Usage: %s {--perf | --func {--input <path>}}\n\
 \n\
 Required arguments:\n\
@@ -33,11 +34,12 @@ Required arguments:\n\
 \t--func\t\tFunctional mode, test application functionalites.\n\
 \n\
 Optional arguments:\n\
-\t--input PATH\tFile with data uses to initialize a graph.\n", prog);
+\t--input PATH\tFile with data uses to initialize a graph.\n",
+               prog);
   std::exit(exit_success ? 0 : 1);
 }
 
-} // namespace
+}  // namespace
 
 int main(int argc, char* argv[]) {
   if (argc < 2) ExitHelp(argv[0], false);

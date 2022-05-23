@@ -24,6 +24,6 @@ namespace sdizo::test {
 bool Functional(const util::Args& args);
 inline bool Performance() { return true; }
 
-} // namespace sdizo::test
+}  // namespace sdizo::test
 
-#endif // SDIZO_TEST_HPP_
+#endif  // SDIZO_TEST_HPP_

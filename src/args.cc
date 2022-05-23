@@ -27,9 +27,7 @@ const char* Args::GetValue(const std::string& name) const {
 
 bool Args::IsFlag(const std::string& name) const { return flags_.count(name); }
 
-bool Args::IsOption(const std::string& name) const {
-  return options_.count(name);
-}
+bool Args::IsOption(const std::string& name) const { return options_.count(name); }
 
 bool Args::ResolveArgs(const char* const* argv) {
   flags_.clear();
@@ -37,8 +35,7 @@ bool Args::ResolveArgs(const char* const* argv) {
   if (argv == nullptr || *argv == nullptr || **argv == '\0') return false;
 
   const char* next;
-  for (const char* arg = *argv; arg != nullptr && *arg != '\0';
-       arg = *(++argv)) {
+  for (const char* arg = *argv; arg != nullptr && *arg != '\0'; arg = *(++argv)) {
     if (strncmp(arg, "--", 2) != 0) continue;
     arg += 2;
     if (*arg == '\0') continue;
@@ -63,4 +60,4 @@ bool Args::ResolveArgs(const char* const* argv) {
   return true;
 }
 
-} // namespace util
+}  // namespace util

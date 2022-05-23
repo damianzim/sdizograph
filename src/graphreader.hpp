@@ -17,12 +17,12 @@
 #ifndef SDIZO_GRAPHREADER_HPP_
 #define SDIZO_GRAPHREADER_HPP_
 
-#include <string>
-
-#include <cstddef>
-#include <cstdint>
-#include <cstdlib>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include <sys/types.h>
+
+#include <string>
 
 namespace sdizo {
 
@@ -42,6 +42,6 @@ class GraphReader {
   size_t size_{0};
 };
 
-} // namespace sdizo
+}  // namespace sdizo
 
-#endif // SDIZO_GRAPHREADER_HPP_
+#endif  // SDIZO_GRAPHREADER_HPP_

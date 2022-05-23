@@ -51,6 +51,6 @@ class Args {
   std::map<std::string, const char*> options_;
 };
 
-} // namespace util
+}  // namespace util
 
 #endif  // SDIZO_ARGS_HPP_
