@@ -36,10 +36,12 @@ using Connections = std::list<Connection>;
 using Adjacent = std::vector<Connections>;
 
 using SpanningTree = std::set<WEdge>;
+using PathCost = std::pair<std::vector<Vertex>, std::vector<Weight>>;
 
 namespace detail {
 
 void Print(const SpanningTree& st);
+void Print(const Vertex vb, const PathCost& path_cost);
 Weight SpanningTreeCost(const SpanningTree& st);
 
 }  // namespace detail

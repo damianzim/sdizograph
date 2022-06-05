@@ -17,6 +17,7 @@
 #include "graph.hpp"
 
 #include <cstdio>
+#include <list>
 #include <numeric>
 
 namespace sdizo::detail {
@@ -29,6 +30,22 @@ void Print(const SpanningTree& st) {
 Weight SpanningTreeCost(const SpanningTree& st) {
   return std::accumulate(st.begin(), st.end(), 0,
                          [](const Weight cost, const WEdge& wedge) -> Weight { return cost + wedge.second; });
+}
+
+void Print(const Vertex vb, const PathCost& path_cost) {
+  const auto& predecessors = path_cost.first;
+  const auto& distances = path_cost.second;
+  for (size_t i = 0; i < predecessors.size(); ++i) {
+    if (i == vb) {
+      std::printf("[%2zu]-(%3d)->[%2zu]\n", i, distances[i], i);
+      continue;
+    }
+    std::list<Vertex> path;
+    for (Vertex v = i; v != vb; v = predecessors[v]) path.push_front(v);
+    std::printf("[%2zu]-(%3d)->[%2zu]: [%2zu]", vb, distances[i], i, vb);
+    for (const Vertex& w : path) std::printf("->[%2zu]", w);
+    std::putchar('\n');
+  }
 }
 
 }  // namespace sdizo::detail
