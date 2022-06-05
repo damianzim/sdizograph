@@ -34,19 +34,20 @@ bool GraphReader::Open(const char* path, size_t& v, size_t& e, size_t* vb, size_
     return false;
   }
 
-  int64_t size, e_read, vb_read, ve_read;
-  if (std::fscanf(fp_, "%" PRId64 " %" PRId64 " %" PRId64 " %" PRId64 " \n", &size, &e_read, &vb_read, &ve_read) != 4 ||
-      size < 1) {
+  int64_t e_read, v_read, vb_read, ve_read;
+  if (std::fscanf(fp_, "%" PRId64 " %" PRId64 " %" PRId64 " %" PRId64 " \n", &e_read, &v_read, &vb_read, &ve_read) !=
+          4 ||
+      v_read < 1) {
     std::fclose(fp_);
     fp_ = nullptr;
     return false;
   }
-  v = size;
+  v = v_read;
   e = e_read;
   if (vb != nullptr) *vb = vb_read;
   if (ve != nullptr) *ve = ve_read;
   offset_ = 0;
-  size_ = size;
+  size_ = e_read;
   return true;
 }
 
