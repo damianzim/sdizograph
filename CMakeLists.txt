@@ -43,6 +43,7 @@ set(SDIZOGRAPH_SOURCE
   src/example.cc
   src/functional.cc
   src/graph.cc
+  src/graphgenerator.cc
   src/graphreader.cc
 )
 

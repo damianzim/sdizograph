@@ -24,12 +24,9 @@
 #include <set>
 #include <vector>
 
-namespace sdizo {
+#include "graphtype.hpp"
 
-using Vertex = size_t;
-using Weight = int32_t;
-using Edge = std::pair<Vertex, Vertex>;
-using WEdge = std::pair<Edge, Weight>;
+namespace sdizo {
 
 using Connection = std::pair<Vertex, Weight>;
 using Connections = std::list<Connection>;
@@ -95,6 +92,7 @@ class AdjacencyMatrix : public Graph<AdjacencyMatrix> {
   std::unique_ptr<std::set<Vertex>> Vertices() const { return std::make_unique<std::set<Vertex>>(vertices_); }
   size_t VerticesNo() const { return vertices_.size(); }
 
+  void AddEdge(const WEdge& edge) { AddEdge(edge.first.first, edge.first.second, edge.second); }
   void AddEdge(const Vertex vb, const Vertex ve, const Weight w) {
     vertices_.insert({vb, ve});
     const Vertex max_v = std::max(vb, ve);
@@ -166,6 +164,7 @@ class AdjacencyList : public Graph<AdjacencyList> {
   }
   size_t VerticesNo() const { return g_->size(); }
 
+  void AddEdge(const WEdge& edge) { AddEdge(edge.first.first, edge.first.second, edge.second); }
   void AddEdge(const Vertex vb, const Vertex ve, const int32_t w) {
     const Vertex max_v = std::max(vb, ve);
     if (max_v >= g_->size()) g_->resize(max_v + 1);
