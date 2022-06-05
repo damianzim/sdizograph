@@ -18,7 +18,6 @@
 #define SDIZO_SHORTESTPATH_HPP_
 
 #include <algorithm>
-#include <memory>
 #include <limits>
 #include <memory>
 #include <vector>
