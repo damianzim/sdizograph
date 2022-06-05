@@ -41,6 +41,7 @@ endif()
 set(SDIZOGRAPH_SOURCE
   src/args.cc
   src/functional.cc
+  src/graph.cc
   src/graphreader.cc
 )
 

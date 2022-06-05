@@ -35,6 +35,15 @@ using Connection = std::pair<Vertex, Weight>;
 using Connections = std::list<Connection>;
 using Adjacent = std::vector<Connections>;
 
+using SpanningTree = std::set<WEdge>;
+
+namespace detail {
+
+void Print(const SpanningTree& st);
+Weight SpanningTreeCost(const SpanningTree& st);
+
+}  // namespace detail
+
 template <class GRepr>
 class Graph {
  public:
