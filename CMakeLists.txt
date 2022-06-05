@@ -45,6 +45,7 @@ set(SDIZOGRAPH_SOURCE
   src/graph.cc
   src/graphgenerator.cc
   src/graphreader.cc
+  src/performance.cc
 )
 
 add_library(sdizographlib STATIC ${SDIZOGRAPH_SOURCE})

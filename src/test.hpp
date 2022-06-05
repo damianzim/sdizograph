@@ -23,7 +23,7 @@ namespace sdizo::test {
 
 bool Example(const util::Args& args);
 bool Functional(const util::Args& args);
-inline bool Performance() { return true; }
+bool Performance(const util::Args& args);
 
 }  // namespace sdizo::test
 

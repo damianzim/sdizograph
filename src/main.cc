@@ -27,11 +27,12 @@ namespace {
 [[noreturn]] void ExitHelp(const char* prog, const bool exit_success = true) {
   std::fprintf(stderr,
                "\
-Usage: %s {--example {--input <path>} | --perf | --func {--input <path>}}\n\
+Usage: %s {--example {--input <path>} | --perf [--random] | --func {--input <path>}}\n\
 \n\
 Required arguments:\n\
 \t--example\tRun example on all implemented algorithms and graph representations.\n\
 \t--perf\t\tPerformance mode.\n\
+\t--random\tRandom seed.\n\
 \t--func\t\tFunctional mode, test application functionalites.\n\
 \n\
 Optional arguments:\n\
@@ -52,7 +53,7 @@ int main(int argc, char* argv[]) {
   if (args.IsFlag("example"))
     result = test::Example(args);
   else if (args.IsFlag("perf"))
-    result = test::Performance();
+    result = test::Performance(args);
   else if (args.IsFlag("func"))
     result = test::Functional(args);
   else
