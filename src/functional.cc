@@ -21,10 +21,27 @@
 #include <string>
 #include <string_view>
 
+#include "graph.hpp"
+#include "graphgenerator.hpp"
+#include "graphreader.hpp"
+#include "mst.hpp"
 #include "test.hpp"
 
 namespace sdizo::test {
 namespace {
+
+bool LoadGraph(std::vector<WEdge>& edges, size_t& vertices, const char* input, Vertex* vb = nullptr) {
+  size_t v, e;
+  Vertex ub, ue;
+  Weight weight;
+  [[maybe_unused]] Vertex ve;
+  GraphReader reader;
+  if (!reader.Open(input, v, e, vb, &ve)) return false;
+  vertices = v;
+  while (reader.ReadEdge(ub, ue, &weight)) edges.emplace_back(Edge(ub, ue), weight);
+  return true;
+}
+
 namespace menu {
 
 using std::operator""sv;
@@ -90,13 +107,127 @@ class Ctx {
   }
 };
 
+class Undirected : public Ctx {
+ public:
+  Undirected() {
+    cmds_["generate"] = std::make_pair("<vertices> <density>", std::bind(&Undirected::GenerateGraph, this, _1));
+    cmds_["list"] = std::make_pair("", std::bind(&Undirected::PrintList, this, _1));
+    cmds_["matrix"] = std::make_pair("", std::bind(&Undirected::PrintMatrix, this, _1));
+    cmds_["kruskal"] = std::make_pair("{list | matrix}", std::bind(&Undirected::Kruskal, this, _1));
+    cmds_["prim"] = std::make_pair("{list | matrix}", std::bind(&Undirected::Prim, this, _1));
+  }
+
+  const char* Name() const { return "undirected"; }
+
+  void Load(const std::vector<WEdge>& edges, const size_t vertices) {
+    g_matrix_ = std::make_shared<AdjacencyMatrix>(false, vertices);
+    g_list_ = std::make_shared<AdjacencyList>(false, vertices);
+    std::for_each(edges.cbegin(), edges.cend(), [this](const WEdge& edge) {
+      g_list_->AddEdge(edge);
+      g_matrix_->AddEdge(edge);
+    });
+  }
+
+ private:
+  void PrintList(std::string_view) const {
+    if (g_list_ != nullptr)
+      g_list_->Print();
+    else
+      std::printf("Error: Adjacency list is empty\n");
+  }
+  void PrintMatrix(std::string_view) const {
+    if (g_matrix_ != nullptr)
+      g_matrix_->Print();
+    else
+      std::printf("Error: Adjacency matrix is empty\n");
+  }
+  void Kruskal(std::string_view line) const {
+    if (g_list_ == nullptr || g_matrix_ == nullptr) {
+      std::printf("Error: Graph does not exist\n");
+      return;
+    }
+    std::string_view token;
+    if (!GetToken(line, token)) {
+      std::printf("Error: Missing argument\n");
+      return;
+    }
+    if (token.compare("list"sv) == 0)
+      detail::Print(*mst::Kruskal<AdjacencyList>(g_list_));
+    else if (token.compare("matrix"sv) == 0)
+      detail::Print(*mst::Kruskal<AdjacencyMatrix>(g_matrix_));
+    else
+      std::printf("Error: Invalid graph representaton\n");
+  }
+  void Prim(std::string_view line) const {
+    if (g_list_ == nullptr || g_matrix_ == nullptr) {
+      std::printf("Error: Graph does not exist\n");
+      return;
+    }
+    std::string_view token;
+    if (!GetToken(line, token)) {
+      std::printf("Error: Missing argument\n");
+      return;
+    }
+    if (token.compare("list"sv) == 0)
+      detail::Print(*mst::Prim<AdjacencyList>(g_list_));
+    else if (token.compare("matrix"sv) == 0)
+      detail::Print(*mst::Prim<AdjacencyMatrix>(g_matrix_));
+    else
+      std::printf("Error: Invalid graph representaton\n");
+  }
+
+  void GenerateGraph(std::string_view line) {
+    std::string_view token;
+    if (!GetToken(line, token, "vertices")) return;
+    long vertices;
+    if (!ParseNum(token, vertices, "vertices")) return;
+    if (vertices < 1) {
+      std::printf("Error: Invalid number of vertices, should be greater than 0\n");
+      return;
+    }
+    if (!GetToken(line, token, "density")) return;
+    int density;
+    if (!ParseNum(token, density, "density")) return;
+    if (density < 1 || density > 100) {
+      std::printf("Error: Invalid density, should be 0 < density <= 100\n");
+      return;
+    }
+    std::vector<WEdge> edges = graph_gen_.Generate(vertices, density, false);
+    Load(edges, vertices);
+  }
+
+  std::shared_ptr<AdjacencyList> g_list_{nullptr};
+  std::shared_ptr<AdjacencyMatrix> g_matrix_{nullptr};
+  GraphGenerator graph_gen_{true};
+};
+
 class Main : public Ctx {
  public:
-  Main(CtxPtr* ctx, const char* input) : input_(input), ctx_ref_(ctx) { using namespace std::placeholders; }
+  Main(CtxPtr* ctx, const char* input) : input_(input), ctx_ref_(ctx) {
+    cmds_["undirected"] = std::make_pair("[init]", std::bind(&Main::EnterUndirected, this, _1));
+  }
 
   const char* Name() const override { return ""; }
 
  private:
+  void EnterUndirected(std::string_view line) {
+    std::shared_ptr<Undirected> ctx_undirected = std::make_shared<Undirected>();
+    *ctx_ref_ = ctx_undirected;
+    std::string_view token;
+    if (!GetToken(line, token) || token.compare("init"sv) != 0) return;
+    if (input_ == nullptr) {
+      std::printf("Error: No --input provided\n");
+      return;
+    }
+    std::vector<WEdge> edges;
+    size_t vertices;
+    if (!LoadGraph(edges, vertices, input_)) {
+      std::printf("Error: Loading graph\n");
+      return;
+    }
+    ctx_undirected->Load(edges, vertices);
+  }
+
   const char* input_{nullptr};
 
   CtxPtr* ctx_ref_{nullptr};
