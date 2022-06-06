@@ -114,8 +114,8 @@ class Directed : public Ctx {
     cmds_["generate"] = std::make_pair("<vertices> <density>", std::bind(&Directed::GenerateGraph, this, _1));
     cmds_["list"] = std::make_pair("", std::bind(&Directed::PrintList, this, _1));
     cmds_["matrix"] = std::make_pair("", std::bind(&Directed::PrintMatrix, this, _1));
-    cmds_["dijkstra"] = std::make_pair("{list | matrix}", std::bind(&Directed::Dijkstra, this, _1));
-    cmds_["bellmanford"] = std::make_pair("{list | matrix}", std::bind(&Directed::BellmanFord, this, _1));
+    cmds_["dijkstra"] = std::make_pair("{list | matrix} [vstart]", std::bind(&Directed::Dijkstra, this, _1));
+    cmds_["bellmanford"] = std::make_pair("{list | matrix} [vstart]", std::bind(&Directed::BellmanFord, this, _1));
   }
 
   const char* Name() const { return "directed"; }
@@ -148,15 +148,25 @@ class Directed : public Ctx {
       std::printf("Error: Graph does not exist\n");
       return;
     }
-    std::string_view token;
-    if (!GetToken(line, token)) {
-      std::printf("Error: Missing argument\n");
+    std::string_view representation;
+    if (!GetToken(line, representation)) {
+      std::printf("Error: Missing representation\n");
       return;
     }
-    if (token.compare("list"sv) == 0)
-      detail::Print(vb_, *shortestpath::Dijkstra<AdjacencyList>(g_list_, vb_));
-    else if (token.compare("matrix"sv) == 0)
-      detail::Print(vb_, *shortestpath::Dijkstra<AdjacencyMatrix>(g_matrix_, vb_));
+    std::string_view token;
+    long vstart;
+    Vertex vb = vb_;
+    if (GetToken(line, token)) {
+      if (!ParseNum(token, vstart) || vstart < 0 || static_cast<size_t>(vstart) >= g_list_->VerticesNo()) {
+        std::printf("Warning: Invalid start vertex\n");
+        return;
+      }
+      vb = vstart;
+    }
+    if (representation.compare("list"sv) == 0)
+      detail::Print(vb, *shortestpath::Dijkstra<AdjacencyList>(g_list_, vb));
+    else if (representation.compare("matrix"sv) == 0)
+      detail::Print(vb, *shortestpath::Dijkstra<AdjacencyMatrix>(g_matrix_, vb));
     else
       std::printf("Error: Invalid graph representaton\n");
   }
@@ -165,22 +175,32 @@ class Directed : public Ctx {
       std::printf("Error: Graph does not exist\n");
       return;
     }
-    std::string_view token;
-    if (!GetToken(line, token)) {
-      std::printf("Error: Missing argument\n");
+    std::string_view representation;
+    if (!GetToken(line, representation)) {
+      std::printf("Error: Missing representation\n");
       return;
     }
+    std::string_view token;
+    long vstart;
+    Vertex vb = vb_;
+    if (GetToken(line, token)) {
+      if (!ParseNum(token, vstart) || vstart < 0 || static_cast<size_t>(vstart) >= g_list_->VerticesNo()) {
+        std::printf("Warning: Invalid start vertex\n");
+        return;
+      }
+      vb = vstart;
+    }
     std::unique_ptr<PathCost> path_cost = std::make_unique<PathCost>();
-    if (token.compare("list"sv) == 0)
-      path_cost = shortestpath::BellmanFord<AdjacencyList>(g_list_, vb_);
-    else if (token.compare("matrix"sv) == 0)
-      path_cost = shortestpath::BellmanFord<AdjacencyMatrix>(g_matrix_, vb_);
+    if (representation.compare("list"sv) == 0)
+      path_cost = shortestpath::BellmanFord<AdjacencyList>(g_list_, vb);
+    else if (representation.compare("matrix"sv) == 0)
+      path_cost = shortestpath::BellmanFord<AdjacencyMatrix>(g_matrix_, vb);
     else {
       std::printf("Error: Invalid graph representaton\n");
       return;
     }
     if (path_cost)
-      detail::Print(vb_, *path_cost);
+      detail::Print(vb, *path_cost);
     else
       std::printf("Warning: Detected negative cycle\n");
   }
